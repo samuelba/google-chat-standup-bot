@@ -31,6 +31,8 @@ services:
       DB_NAME: ${DB_NAME}
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD_FILE: /run/secrets/postgres-passwd
+      GOOGLE_SERVICE_ACCOUNT_JSON: ${GOOGLE_SERVICE_ACCOUNT_JSON}
+      CRON_TIME: ${CRON_TIME}
       TZ: ${TIME_ZONE}
     secrets:
       - postgres-passwd

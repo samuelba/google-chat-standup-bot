@@ -9,7 +9,8 @@ fi
 echo "Running as $(id)"
 if [ "$(id -u)" -eq 0 ] && [ "$(grep -c "$CRON_CMD" "$CRONFILE")" -eq 0 ]; then
   echo "Initializing..."
-  echo "$CRON_TIME $CRON_CMD >> ${log_file} 2>&1" | crontab -
+  cron_time=${CRON_TIME:1:${#CRON_TIME}-2}
+  echo "$cron_time $CRON_CMD >> ${log_file} 2>&1" | crontab -
 fi
 
 # Start crond if it's not running.
