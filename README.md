@@ -4,6 +4,8 @@ This is a Google Chat bot to ask the users the three standup questions.
 After the questions have been answered, the bot will publish the answers to the group chat of the team. 
 The standup questions can be either triggered automatically by a user configurable schedule, or manually by the user.
 
+![Screenshots](images/screenshots.png)
+
 ## Supported Slash Commands
 
 | Command | Description | id |
