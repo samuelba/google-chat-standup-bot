@@ -1,0 +1,61 @@
+version: '3.1'
+
+services:
+  google-chat-standup-bot-db:
+    image: postgres:13
+    container_name: google-chat-standup-bot-db
+    restart: always
+    environment:
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres-passwd
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - 5432:5432
+#    expose:
+#      - 5432
+    secrets:
+      - postgres-passwd
+    volumes:
+      - ${LOCAL_DATA_PATH}/database:/var/lib/postgresql/data
+
+  google-chat-standup-bot:
+    depends_on:
+      - google-chat-standup-bot-db
+    build: .
+    image: google-chat-standup-bot:latest
+    container_name: google-chat-standup-bot
+    restart: always
+    environment:
+      AUDIENCE: ${AUDIENCE}
+      DB_HOST: ${DB_HOST}
+      DB_NAME: ${DB_NAME}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD_FILE: /run/secrets/postgres-passwd
+      GOOGLE_CHAT_CREDENTIALS: /run/secrets/google-chat-credentials
+      TZ: ${TIME_ZONE}
+    secrets:
+      - postgres-passwd
+    volumes:
+      - ${LOCAL_DATA_PATH}/logs:/root/logs
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.standup-bot.entrypoints=web"
+      - "traefik.http.routers.standup-bot.rule=Host(`${HOST}`)"
+      - "traefik.http.middlewares.standup-bot-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.standup-bot.middlewares=standup-bot-https-redirect"
+      - "traefik.http.routers.standup-bot-secure.entrypoints=websecure"
+      - "traefik.http.routers.standup-bot-secure.rule=Host(`${HOST}`)"
+      - "traefik.http.routers.standup-bot-secure.tls=true"
+      - "traefik.http.routers.standup-bot-secure.tls.certresolver=myhttpchallenge"
+      - "traefik.http.routers.standup-bot-secure.service=standup-bot"
+      - "traefik.http.services.standup-bot.loadbalancer.server.port=5000"
+      - "traefik.docker.network=traefik"
+
+networks:
+  default:
+    external:
+      name: traefik
+
+secrets:
+  postgres-passwd:
+    file: ./secrets/postgres-passwd
