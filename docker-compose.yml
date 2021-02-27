@@ -31,7 +31,6 @@ services:
       DB_NAME: ${DB_NAME}
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD_FILE: /run/secrets/postgres-passwd
-      GOOGLE_CHAT_CREDENTIALS: /run/secrets/google-chat-credentials
       TZ: ${TIME_ZONE}
     secrets:
       - postgres-passwd
