@@ -10,13 +10,13 @@ from bot.utils.User import User
 def get_team_list_card(teams: Sequence[Team]):
     widgets = []
     if not teams:
-        teams.append(Team(name="No teams found.", webhook=''))
+        teams.append(Team(name="No teams found.", space=''))
     for team in teams:
         widgets.append({
             "keyValue": {
                 "contentMultiline": "true",
                 "content": f"{team.name}",
-                "bottomLabel": f"Webhook: {team.webhook}"
+                "bottomLabel": f"Room: {'Room is assigned.' if team.space else 'No room is assigned.'}"
             }
         })
     return {"cards": [{
