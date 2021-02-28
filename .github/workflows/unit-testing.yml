@@ -11,7 +11,7 @@ jobs:
 
     runs-on: ubuntu-latest
     # Docker Hub image that `container-job` executes in.
-    container: ubuntu:20.04
+#    container: ubuntu:20.04
     strategy:
       matrix:
         python-version: [3.8]
@@ -21,13 +21,13 @@ jobs:
       postgres:
         image: postgres:13
         env:
+          POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432/tcp
         # Set health checks to wait until postgres has started.
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
     steps:
       - name: Check out repository code
@@ -51,8 +51,8 @@ jobs:
         run: |
           pytest
         env:
-          DB_HOST: postgres
-          DB_PORT: 5432
+          DB_HOST: localhost
+          DB_PORT: ${{ job.services.postgres.ports[5432] }}
           DB_NAME: postgres
           DB_USERNAME: postgres
           DB_PASSWORD: postgres
