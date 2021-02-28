@@ -11,11 +11,19 @@ from bot.utils.Team import Team
 from bot.utils.User import User
 from bot.utils.Weekdays import Weekdays
 
+
+def get_password():
+    try:
+        return Path(os.environ.get('DB_PASSWORD_FILE', '')).read_text()
+    except Exception as e:
+        return os.environ.get('DB_PASSWORD', '')
+
+
 CONN_INFO = {
     'host': os.environ.get('DB_HOST', ''),
     'port': os.environ.get('DB_PORT', ''),
     'user': os.environ.get('DB_USERNAME', ''),
-    'password': Path(os.environ.get('DB_PASSWORD_FILE', '')).read_text(),
+    'password': get_password(),
     'dbname': os.environ.get('DB_NAME', '')
 }
 DB_VERSION = 1

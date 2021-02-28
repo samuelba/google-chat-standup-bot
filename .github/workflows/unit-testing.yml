@@ -55,5 +55,5 @@ jobs:
         DB_HOST: postgres
         DB_PORT: 5432
         DB_NAME: postgres
-        DB_USERNAME: postres
-        DB_PASSWORD_FILE: ${PWD}/postgres-passwd
+        DB_USERNAME: postgres
+        DB_PASSWORD: postgres
