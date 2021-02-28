@@ -48,8 +48,8 @@ def test_add_user(database_fixture):
     # Get all users.
     users = Database.get_users(team_name='')
     assert len(users) == 3
-    assert users[0].name == 'John Doe'
-    assert users[1].name == 'Jane Doe'
+    assert users[0].name == 'Jane Doe'
+    assert users[1].name == 'John Doe'
     assert users[2].name == 'Tim Doe'
 
 
