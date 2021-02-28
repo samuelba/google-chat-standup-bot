@@ -1,12 +1,8 @@
 #!/usr/bin/env python3
 
-import os
-
 from datetime import datetime
-from googleapiclient.discovery import build
-from google.oauth2 import service_account
-from pathlib import Path
 
+import bot.utils.Chat as Chat
 import bot.utils.Database as Database
 import bot.utils.Questions as Questions
 from bot.utils.Logger import logger, setup_logger
@@ -25,11 +21,7 @@ if __name__ == '__main__':
         exit(0)
 
     # Initialize the chat service.
-    credentials_dir = Path('/root/credentials')
-    credentials = service_account.Credentials.from_service_account_file(
-        credentials_dir / os.environ['GOOGLE_SERVICE_ACCOUNT_JSON'],
-        scopes=['https://www.googleapis.com/auth/chat.bot'])
-    chat = build('chat', 'v1', credentials=credentials)
+    chat = Chat.get_chat_service()
 
     # Send the standup message.
     for name, google_id, space in users:

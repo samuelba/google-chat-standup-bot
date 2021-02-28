@@ -123,26 +123,14 @@ def add_team(connection, team_name: str) -> bool:
 
 
 @with_connection(CONN_INFO)
-def set_team_webhook(connection, team_name: str, webhook: str) -> bool:
-    cursor = connection.cursor()
-    sql = "UPDATE teams " \
-          "SET webhook = %s " \
-          "WHERE name = %s " \
-          "RETURNING id"
-    cursor.execute(sql, (webhook, team_name))
-    ret = cursor.fetchone()
-    return ret is not None
-
-
-@with_connection(CONN_INFO)
 def get_teams(connection) -> Sequence[Team]:
     cursor = connection.cursor()
-    sql = "SELECT name, webhook " \
+    sql = "SELECT name, space " \
           "FROM teams " \
           "ORDER BY name ASC"
     cursor.execute(sql)
     ret = cursor.fetchall()
-    return [Team(name, webhook) for name, webhook in ret]
+    return [Team(name, space) for name, space in ret]
 
 
 @with_connection(CONN_INFO)
@@ -166,17 +154,46 @@ def join_team(connection, google_id: str, team_name: str) -> bool:
 
 
 @with_connection(CONN_INFO)
-def get_webhook(connection, google_id: str) -> str:
+def join_room_to_team(connection, team_name: str, space: str) -> bool:
     cursor = connection.cursor()
-    sql = "SELECT t.webhook " \
+    sql = "UPDATE teams " \
+          "SET space = NULL " \
+          "WHERE space = %s"
+    cursor.execute(sql, (space,))
+
+    sql = "UPDATE teams " \
+          "SET space = %s " \
+          "WHERE name = %s " \
+          "RETURNING id"
+    cursor.execute(sql, (space, team_name))
+    ret = cursor.fetchone()
+    return ret is not None
+
+
+@with_connection(CONN_INFO)
+def remove_team_space(connection, space: str) -> bool:
+    cursor = connection.cursor()
+    sql = "UPDATE teams " \
+          "SET space = NULL " \
+          "WHERE space = %s" \
+          "RETURNING id"
+    cursor.execute(sql, (space,))
+    ret = cursor.fetchone()
+    return ret is not None
+
+
+@with_connection(CONN_INFO)
+def get_team_of_user(connection, google_id: str) -> Team:
+    cursor = connection.cursor()
+    sql = "SELECT t.name, t.space " \
           "FROM users AS u " \
           "INNER JOIN teams AS t ON t.id = u.team_id AND u.google_id = %s"
     cursor.execute(sql, (google_id,))
     ret = cursor.fetchone()
     if ret:
-        webhook, = ret
-        return webhook
-    return ''
+        name, space = ret
+        return Team(name, space)
+    return None
 
 
 @with_connection(CONN_INFO)
@@ -267,6 +284,38 @@ def get_standup_answers(connection, google_id: str) -> Dict:
     if not ret:
         return dict()
     return {question_type: answer for question_type, answer in ret}
+
+
+@with_connection(CONN_INFO)
+def get_standup_answer_message_id(connection, google_id: str) -> str:
+    cursor = connection.cursor()
+    sql = "SELECT s.message_id " \
+          "FROM standups AS s " \
+          "INNER JOIN users AS u ON u.id = s.user_id AND u.google_id = %s " \
+          "WHERE s.added::date = NOW()::date " \
+          "  AND s.question_type = '3_blocking' AND s.message_id IS NOT NULL"
+    cursor.execute(sql, (google_id,))
+    ret = cursor.fetchone()
+    if not ret:
+        return ''
+    message_id, = ret
+    return message_id
+
+
+@with_connection(CONN_INFO)
+def set_message_id(connection, google_id: str, message_id) -> bool:
+    cursor = connection.cursor()
+    sql = "UPDATE standups AS s " \
+          "SET message_id = %s " \
+          "FROM users AS u " \
+          "WHERE s.user_id = u.id " \
+          "      AND u.google_id = %s " \
+          "      AND s.added::date = NOW()::date " \
+          "      AND s.question_type = '3_blocking' " \
+          "RETURNING s.id"
+    cursor.execute(sql, (message_id, google_id))
+    ret = cursor.fetchone()
+    return ret is not None
 
 
 @with_connection(CONN_INFO)
@@ -368,7 +417,7 @@ def update(connection):
             CREATE TABLE "teams" (
               "id" SERIAL PRIMARY KEY,
               "name" varchar UNIQUE,
-              "webhook" varchar
+              "space" varchar
             );
             CREATE TABLE "users" (
               "id" SERIAL PRIMARY KEY,
@@ -385,7 +434,8 @@ def update(connection):
               "user_id" int,
               "question_type" question_type DEFAULT '0_na',
               "answer" varchar,
-              "added" timestamp DEFAULT NOW()
+              "added" timestamp DEFAULT NOW(),
+              "message_id" varchar
             );
             CREATE TABLE "schedules" (
               "id" SERIAL PRIMARY KEY,

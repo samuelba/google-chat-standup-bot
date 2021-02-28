@@ -14,7 +14,6 @@ The standup questions can be either triggered automatically by a user configurab
 | `/users [TEAM]` | List the users of the bot, optional filtered by the team. | 5 |
 | `/teams` | List the available teams. | 3 |
 | `/add_team TEAM` | Add a new team. | 1 |
-| `/set_team_webhook "TEAM" WEBHOOK` | Set the webhook for the team. | 2 |
 | `/join_team TEAM` | Trigger to join another team. Will display an interactive card with teams to join. | 4 |
 | `/schedules` | List the schedules. | 10 |
 | `/enable_schedule WEEKDAY` | Enable the schedule of the weekday. | 8 |

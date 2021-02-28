@@ -61,37 +61,35 @@ def get_standup_card(request, user: User, answers: Dict, with_confirmation: bool
     icon_list_url = f"https://{request.host}/static/images/list.png"
     icon_blocking_url = f"https://{request.host}/static/images/blocking.png"
     card = {
-        "cards": [{
-            "header": {"title": f"{user.name}",
-                       "subtitle": f"{today_str}",
-                       "imageUrl": f"{user.avatar_url}"},
-            "sections": [
-                {"widgets": [
-                    {"keyValue": {
-                        "iconUrl": icon_done_url,
-                        "topLabel": Questions.QUESTION_RETROSPECT,
-                        "contentMultiline": "true",
-                        "content": f"{answers['1_retrospect']}"
-                    }}
-                ]},
-                {"widgets": [
-                    {"keyValue": {
-                        "iconUrl": icon_list_url,
-                        "topLabel": Questions.QUESTION_OUTLOOK,
-                        "contentMultiline": "true",
-                        "content": f"{answers['2_outlook']}"
-                    }}
-                ]},
-                {"widgets": [
-                    {"keyValue": {
-                        "iconUrl": icon_blocking_url,
-                        "topLabel": Questions.QUESTION_BLOCKING,
-                        "contentMultiline": "true",
-                        "content": f"{answers['3_blocking']}"
-                    }}
-                ]}
-            ]
-        }]
+        "header": {"title": f"{user.name}",
+                   "subtitle": f"{today_str}",
+                   "imageUrl": f"{user.avatar_url}"},
+        "sections": [
+            {"widgets": [
+                {"keyValue": {
+                    "iconUrl": icon_done_url,
+                    "topLabel": Questions.QUESTION_RETROSPECT,
+                    "contentMultiline": "true",
+                    "content": f"{answers['1_retrospect']}"
+                }}
+            ]},
+            {"widgets": [
+                {"keyValue": {
+                    "iconUrl": icon_list_url,
+                    "topLabel": Questions.QUESTION_OUTLOOK,
+                    "contentMultiline": "true",
+                    "content": f"{answers['2_outlook']}"
+                }}
+            ]},
+            {"widgets": [
+                {"keyValue": {
+                    "iconUrl": icon_blocking_url,
+                    "topLabel": Questions.QUESTION_BLOCKING,
+                    "contentMultiline": "true",
+                    "content": f"{answers['3_blocking']}"
+                }}
+            ]}
+        ]
     }
     if with_confirmation:
         confirmation = {
@@ -114,7 +112,7 @@ def get_standup_card(request, user: User, answers: Dict, with_confirmation: bool
                 }
             }]
         }
-        card['cards'][0]['sections'].append(confirmation)
+        card['sections'].append(confirmation)
     return card
 
 
