@@ -16,7 +16,7 @@ def database_fixture(monkeypatch, request):
     # monkeypatch.setattr(Database.CONN_INFO, 'dbname', 'postgres')
 
     create_database()
-    yield
+    yield ''
 
 
 def create_database():
