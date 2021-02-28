@@ -1,5 +1,4 @@
 .env
 credentials/credentials.json
-credentials/google-chat-credentials.json
 secrets/postgres-passwd
 sync.sh
