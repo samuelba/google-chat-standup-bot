@@ -53,7 +53,7 @@ def test_add_user(database_fixture):
     assert users[2].name == 'Tim Doe'
 
 
-def test_join_team():
+def test_join_team(database_fixture):
     # Add teams and users.
     _add_teams()
     _add_users()
