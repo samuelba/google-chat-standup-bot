@@ -5,7 +5,8 @@ RUN apk add --no-cache bash python3 python3-dev py3-pip gcc musl-dev postgresql-
          Flask flask-restful \
          google-api-python-client \
          httplib2 \
-         psycopg2
+         psycopg2 \
+         waitress
 
 ENV CRON_CMD /usr/bin/python3 /root/bot/trigger_standup_dialog.py
 ENV TIMESTAMP false

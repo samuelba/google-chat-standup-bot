@@ -266,4 +266,6 @@ def static_dir(path):
 if __name__ == '__main__':
     setup_logger(True, '')
     Database.update()
-    app.run(host='0.0.0.0', port=5000)
+    from waitress import serve
+    serve(app, host='0.0.0.0', port=5000)
+    # app.run(host='0.0.0.0', port=5000, debug=True)
