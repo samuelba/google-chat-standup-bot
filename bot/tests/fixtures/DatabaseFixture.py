@@ -9,11 +9,11 @@ def database_fixture(monkeypatch, request):
         destroy_database()
     request.addfinalizer(finalizer)
 
-    monkeypatch.setattr(Database.CONN_INFO, 'host', 'postgres')
-    monkeypatch.setattr(Database.CONN_INFO, 'port', '5432')
-    monkeypatch.setattr(Database.CONN_INFO, 'user', 'postgres')
-    monkeypatch.setattr(Database.CONN_INFO, 'password', 'postgres')
-    monkeypatch.setattr(Database.CONN_INFO, 'dbname', 'postgres')
+    # monkeypatch.setattr(Database.CONN_INFO, 'host', 'postgres')
+    # monkeypatch.setattr(Database.CONN_INFO, 'port', '5432')
+    # monkeypatch.setattr(Database.CONN_INFO, 'user', 'postgres')
+    # monkeypatch.setattr(Database.CONN_INFO, 'password', 'postgres')
+    # monkeypatch.setattr(Database.CONN_INFO, 'dbname', 'postgres')
 
     create_database()
     yield

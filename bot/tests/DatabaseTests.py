@@ -1,6 +1,6 @@
 import bot.utils.Database as Database
 
-from bot.tests.fixtures import DatabaseFixture
+from bot.tests.fixtures.DatabaseFixture import database_fixture
 
 
 def test_something():
