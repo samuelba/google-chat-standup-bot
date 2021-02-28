@@ -64,13 +64,13 @@ def test_join_team(database_fixture):
     assert Database.join_team(google_id='def', team_name='Frontend')
 
     # Get users and check team.
-    users = Database.get_users()
+    users = Database.get_users(team_name='')
     assert users[0].team_name == 'Frontend'
     assert users[1].team_name == 'Backend'
     assert users[2].team_name is None
 
     # Change team.
     assert Database.join_team(google_id='abc', team_name='Frontend')
-    users = Database.get_users()
+    users = Database.get_users(team_name='')
     assert users[0].team_name == 'Frontend'
     assert users[1].team_name == 'Frontend'
