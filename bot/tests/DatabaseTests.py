@@ -23,7 +23,7 @@ def _add_teams():
 
 def test_add_team(database_fixture):
     # Test empty case.
-    assert len(Database.get_teams())
+    assert len(Database.get_teams()) == 0
 
     # Add teams.
     _add_teams()
@@ -40,8 +40,7 @@ def test_add_team(database_fixture):
 
 def test_add_user(database_fixture):
     # Test empty case.
-    users = Database.get_users(team_name='')
-    assert len(users) == 0
+    assert len(Database.get_users(team_name='')) == 0
 
     # Add users.
     _add_users()
