@@ -16,7 +16,7 @@ def get_team_list_card(teams: Sequence[Team]):
             "keyValue": {
                 "contentMultiline": "true",
                 "content": f"{team.name}",
-                "bottomLabel": f"Room: {'Room is assigned.' if team.space else 'No room is assigned.'}"
+                "bottomLabel": f"{'Room is assigned.' if team.space else 'No room is assigned.'}"
             }
         })
     return {"cards": [{
