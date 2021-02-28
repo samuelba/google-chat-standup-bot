@@ -96,10 +96,10 @@ def on_event():
 
     app.logger.info(f"The event: {event}")
     if event['type'] == 'ADDED_TO_SPACE':
-        if is_room:
+        if not is_room:
             Database.add_user(user=user)
-            teams = Database.get_teams()
-            return json.jsonify(Cards.get_team_selection_card(teams, True))
+        teams = Database.get_teams()
+        return json.jsonify(Cards.get_team_selection_card(teams, True))
 
     elif event['type'] == 'REMOVED_FROM_SPACE':
         if is_room:
