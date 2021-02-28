@@ -1,10 +1,13 @@
 import pytest
 
 import bot.utils.Database as Database
+from bot.utils.Logger import setup_logger
 
 
 @pytest.fixture
 def database_fixture(monkeypatch, request):
+    setup_logger(True, '')
+
     def finalizer():
         destroy_database()
     request.addfinalizer(finalizer)
@@ -16,7 +19,7 @@ def database_fixture(monkeypatch, request):
     # monkeypatch.setattr(Database.CONN_INFO, 'dbname', 'postgres')
 
     create_database()
-    yield ''
+    yield 'Database is initialized.'
 
 
 def create_database():
