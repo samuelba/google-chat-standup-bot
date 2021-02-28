@@ -6,8 +6,8 @@ jobs:
   container-job:
     # Containers must run in Linux based operating systems
     runs-on: ubuntu-latest
-#    # Docker Hub image that `container-job` executes in
-#    container: alpine:latest
+    # Docker Hub image that `container-job` executes in
+    container: ubuntu:20.04
 
     # Service containers to run with `container-job`
     services:
