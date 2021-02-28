@@ -19,12 +19,19 @@ def database_fixture(monkeypatch, request):
     yield
 
 
-@Database.with_connection(Database.CONN_INFO)
-def create_database(connection):
-    cursor = connection.cursor()
+def create_database():
+    Database.update()
     pass
 
 
 @Database.with_connection(Database.CONN_INFO)
 def destroy_database(connection):
-    pass
+    cursor = connection.cursor()
+    sql = "DROP TABLE schedules CASCADE;" \
+          "DROP TABLE standups CASCADE;" \
+          "DROP TABLE users CASCADE;" \
+          "DROP TABLE teams CASCADE;" \
+          "DROP TABLE db_version CASCADE;" \
+          "DROP TYPE day_type CASCADE;" \
+          "DROP TYPE question_type CASCADE;"
+    cursor.execute(sql)
