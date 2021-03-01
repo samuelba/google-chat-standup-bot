@@ -5,18 +5,12 @@ from bot.utils.Logger import setup_logger
 
 
 @pytest.fixture
-def database_fixture(monkeypatch, request):
+def database_fixture(request):
     setup_logger(True, '')
 
     def finalizer():
         destroy_database()
     request.addfinalizer(finalizer)
-
-    # monkeypatch.setattr(Database.CONN_INFO, 'host', 'postgres')
-    # monkeypatch.setattr(Database.CONN_INFO, 'port', '5432')
-    # monkeypatch.setattr(Database.CONN_INFO, 'user', 'postgres')
-    # monkeypatch.setattr(Database.CONN_INFO, 'password', 'postgres')
-    # monkeypatch.setattr(Database.CONN_INFO, 'dbname', 'postgres')
 
     create_database()
     yield 'Database is initialized.'
@@ -24,7 +18,6 @@ def database_fixture(monkeypatch, request):
 
 def create_database():
     Database.update()
-    pass
 
 
 @Database.with_connection(Database.CONN_INFO)

@@ -10,8 +10,6 @@ jobs:
   test:
 
     runs-on: ubuntu-latest
-    # Docker Hub image that `container-job` executes in.
-#    container: ubuntu:20.04
     strategy:
       matrix:
         python-version: [3.8]
