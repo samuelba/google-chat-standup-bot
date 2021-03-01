@@ -204,11 +204,11 @@ def on_event():
                 text = NO_ANSWER
             else:
                 question_type = Database.get_standup_question_type(google_id=user.google_id)
-                if question_type and question_type != '3_blocking':
+                if question_type and question_type != '4_where':
                     answer = event['message']['text']
                     success, question_type = Database.add_standup_answer(google_id=user.google_id, answer=answer)
                     text = Questions.get_standup_question(user.name, question_type)
-                    if question_type == '3_blocking':
+                    if question_type == '4_where':
                         app.logger.info("Publish to the team webhook.")
                         answers = Database.get_standup_answers(google_id=user.google_id)
                         card = Cards.get_standup_card(request, user, answers, True)
