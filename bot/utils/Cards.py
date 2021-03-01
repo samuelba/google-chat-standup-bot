@@ -25,28 +25,53 @@ def get_team_list_card(teams: Sequence[Team]):
             }]}
 
 
-def get_team_selection_card(teams: Sequence[Team], with_greeting: bool = False):
-    title = "Thanks for adding me!" if with_greeting else "You requested to join a new team"
-    subtitle = "Select your team"
+def get_team_selection_card(teams: Sequence[Team], is_room: bool, with_greeting: bool = False):
+    title = "Thanks for adding me!" if with_greeting else \
+        ("You requested to join with this room a new team" if is_room else "You requested to join a new team")
+    subtitle = "Select a team for this room" if is_room else "Select your team"
     widgets = []
-    for team in teams:
+    content = ''
+    # Check if some teams exists.
+    if not teams:
+        content = "No teams found."
+    # If a room requested the join team card, check if unassigned teams are available.
+    if is_room:
+        has_free_team = False
+        for team in teams:
+            if not team.space:
+                has_free_team = True
+                break
+        if not has_free_team:
+            content = "No unassigned teams found."
+    # Either no teams exist, or no more unassigned teams.
+    if content:
         widgets.append({
             "keyValue": {
                 "contentMultiline": "true",
-                "content": f"{team.name}",
-                "button": {
-                    "textButton": {
-                        "text": "JOIN",
-                        "onClick": {
-                            "action": {
-                                "actionMethodName": "join_team",
-                                "parameters": [{"key": "team", "value": team.name}]
+                "content": f"{content}"
+            }
+        })
+    else:
+        for team in teams:
+            if is_room and team.space:
+                continue
+            widgets.append({
+                "keyValue": {
+                    "contentMultiline": "true",
+                    "content": f"{team.name}",
+                    "button": {
+                        "textButton": {
+                            "text": "JOIN",
+                            "onClick": {
+                                "action": {
+                                    "actionMethodName": "join_team",
+                                    "parameters": [{"key": "team", "value": team.name}]
+                                }
                             }
                         }
                     }
                 }
-            }
-        })
+            })
 
     return {"cards": [{
                 "header": {"title": title, "subtitle": subtitle},

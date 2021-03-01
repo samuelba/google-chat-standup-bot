@@ -99,11 +99,11 @@ def on_event():
         if not is_room:
             Database.add_user(user=user)
         teams = Database.get_teams()
-        return json.jsonify(Cards.get_team_selection_card(teams, True))
+        return json.jsonify(Cards.get_team_selection_card(teams, is_room, True))
 
     elif event['type'] == 'REMOVED_FROM_SPACE':
         if is_room:
-            Database.remove_team_space(space=space)
+            Database.leave_team_with_room(space=space)
         else:
             Database.disable_user(user=user)
             text = ""
@@ -127,7 +127,7 @@ def on_event():
             # /join_team
             if event['message']['slashCommand']['commandId'] == '4':
                 teams = Database.get_teams()
-                return json.jsonify(Cards.get_team_selection_card(teams, False))
+                return json.jsonify(Cards.get_team_selection_card(teams, is_room, False))
             # /users [team_name]
             if event['message']['slashCommand']['commandId'] == '5':
                 team_name = ''
@@ -197,6 +197,14 @@ def on_event():
                 else:
                     schedules = Database.get_schedules(google_id=user.google_id)
                     return json.jsonify(Cards.get_schedule_list_card(schedules))
+            # /leave_team
+            if event['message']['slashCommand']['commandId'] == '11':
+                if is_room:
+                    Database.leave_team_with_room(space=space)
+                    text = f"The room is no longer part of a team. Run `/join_team` to join the room to another team."
+                else:
+                    Database.leave_team(google_id=user.google_id)
+                    text = f"You left the team. Run `/join_team` to join another team."
 
         # Handle standup answers and generic requests.
         else:

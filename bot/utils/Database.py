@@ -162,13 +162,35 @@ def join_team(connection, google_id: str, team_name: str) -> bool:
 
 
 @with_connection(CONN_INFO)
+def leave_team(connection, google_id: str) -> bool:
+    cursor = connection.cursor()
+    sql = "UPDATE users " \
+          "SET team_id = NULL " \
+          "WHERE google_id = %s " \
+          "RETURNING id"
+    cursor.execute(sql, (google_id,))
+    ret = cursor.fetchone()
+    return ret is not None
+
+
+@with_connection(CONN_INFO)
 def join_room_to_team(connection, team_name: str, space: str) -> bool:
     cursor = connection.cursor()
-    sql = "UPDATE teams " \
-          "SET space = NULL " \
-          "WHERE space = %s"
-    cursor.execute(sql, (space,))
+    # Check if this team_name as already a space assigned.
+    sql = "SELECT space " \
+          "FROM teams " \
+          "WHERE name = %s"
+    cursor.execute(sql, (team_name,))
+    ret = cursor.fetchone()
+    if ret:
+        team_space, = ret
+        if team_space:
+            return False
 
+    # Remove the space from other teams.
+    leave_team_with_room(space=space)
+
+    # Add the space to the team.
     sql = "UPDATE teams " \
           "SET space = %s " \
           "WHERE name = %s " \
@@ -179,7 +201,7 @@ def join_room_to_team(connection, team_name: str, space: str) -> bool:
 
 
 @with_connection(CONN_INFO)
-def remove_team_space(connection, space: str) -> bool:
+def leave_team_with_room(connection, space: str) -> bool:
     cursor = connection.cursor()
     sql = "UPDATE teams " \
           "SET space = NULL " \
