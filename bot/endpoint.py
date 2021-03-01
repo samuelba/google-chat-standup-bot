@@ -205,6 +205,16 @@ def on_event():
                 else:
                     Database.leave_team(google_id=user.google_id)
                     text = f"You left the team. Run `/join_team` to join another team."
+            # /remove_team
+            if event['message']['slashCommand']['commandId'] == '12':
+                team_name = ''
+                if 'argumentText' in event['message']:
+                    team_name = event['message']['argumentText'].strip(' "\'')
+                if team_name and Database.remove_team(team_name=team_name):
+                    text = f"I removed the team '{team_name}'."
+                else:
+                    text = f"🤕 Sorry, I couldn't remove the team '{team_name}'. " \
+                           f"Make sure the team has no assigned room and no users."
 
         # Handle standup answers and generic requests.
         else:

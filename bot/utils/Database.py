@@ -174,6 +174,27 @@ def leave_team(connection, google_id: str) -> bool:
 
 
 @with_connection(CONN_INFO)
+def remove_team(connection, team_name: str) -> bool:
+    cursor = connection.cursor()
+    # Check if the team as still users.
+    sql = "SELECT * " \
+          "FROM users as u " \
+          "INNER JOIN teams as t ON t.id = u.team_id AND t.name = %s"
+    cursor.execute(sql, (team_name,))
+    ret = cursor.fetchall()
+    if ret:
+        return False
+
+    # Delete the team if it has no space assigned.
+    sql = "DELETE FROM teams " \
+          "WHERE name = %s AND space IS NULL " \
+          "RETURNING id"
+    cursor.execute(sql, (team_name,))
+    ret = cursor.fetchone()
+    return ret is not None
+
+
+@with_connection(CONN_INFO)
 def join_room_to_team(connection, team_name: str, space: str) -> bool:
     cursor = connection.cursor()
     # Check if this team_name as already a space assigned.

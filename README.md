@@ -16,6 +16,7 @@ The standup questions can be either triggered automatically by a user configurab
 | `/add_team TEAM` | Add a new team. | 1 |
 | `/join_team TEAM` | Trigger to join another team. Will display an interactive card with teams to join. | 4 |
 | `/leave_team` | Leave the team. | 11 |
+| `/remove_team` | Remove a team. | 12 |
 | `/schedules` | List the schedules. | 10 |
 | `/enable_schedule WEEKDAY` | Enable the schedule of the weekday. | 8 |
 | `/disable_schedule WEEKDAY` | Disable the schedule of the weekday. | 7 |
