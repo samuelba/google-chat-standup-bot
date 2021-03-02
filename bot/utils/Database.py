@@ -26,7 +26,7 @@ CONN_INFO = {
     'password': get_password(),
     'dbname': os.environ.get('DB_NAME', '')
 }
-DB_VERSION = 1
+DB_VERSION = 2
 
 
 def with_connection(conn_info):
@@ -55,7 +55,7 @@ def with_connection(conn_info):
 
 
 @with_connection(CONN_INFO)
-def add_user(connection, user: User):
+def add_user(connection, user: User) -> bool:
     cursor = connection.cursor()
 
     logger.info(f"Add/update user: {user}")
@@ -69,7 +69,8 @@ def add_user(connection, user: User):
         logger.info(f"Update user: {user}")
         sql = "UPDATE users " \
               "SET name = %s, email = %s, avatar_url = %s, space = %s, active = %s " \
-              "WHERE google_id = %s"
+              "WHERE google_id = %s " \
+              "RETURNING id"
         cursor.execute(sql, (user.name, user.email, user.avatar_url, user.space, True, user.google_id))
     else:
         logger.info(f"Add new user: {user}")
@@ -77,21 +78,8 @@ def add_user(connection, user: User):
               "VALUES (%s, %s, %s, %s, %s, %s) " \
               "RETURNING id"
         cursor.execute(sql, (user.google_id, user.name, user.email, user.avatar_url, user.space, True))
-        ret = cursor.fetchone()
-        user_id, = ret
-        time = '09:00:00'
-        sql = "INSERT INTO schedules AS s (user_id, day, time, enabled) " \
-              "VALUES (%s, %s, %s, True), " \
-              "       (%s, %s, %s, True), " \
-              "       (%s, %s, %s, True), " \
-              "       (%s, %s, %s, True), " \
-              "       (%s, %s, %s, True), " \
-              "       (%s, %s, %s, False), " \
-              "       (%s, %s, %s, False)"
-        values = ()
-        for day in Weekdays:
-            values += (user_id, day, time)
-        cursor.execute(sql, values)
+    ret = cursor.fetchone()
+    return ret is not None
 
 
 @with_connection(CONN_INFO)
@@ -501,6 +489,32 @@ def update(connection):
             CREATE UNIQUE INDEX ON "schedules" ("user_id", "day");
             INSERT INTO db_version VALUES({DB_VERSION});
             """)
+            connection.commit()
+        elif db_version == 1:
+            sql = """
+            CREATE OR REPLACE FUNCTION create_schedules_function()
+              RETURNS TRIGGER 
+              LANGUAGE PLPGSQL AS
+            $$
+            BEGIN
+              INSERT INTO schedules AS s (user_id, day, time, enabled)
+                VALUES (NEW.id, 'Monday', '09:00:00', True),
+                       (NEW.id, 'Tuesday', '09:00:00', True),
+                       (NEW.id, 'Wednesday', '09:00:00', True),
+                       (NEW.id, 'Thursday', '09:00:00', True),
+                       (NEW.id, 'Friday', '09:00:00', True),
+                       (NEW.id, 'Saturday', '09:00:00', False),
+                       (NEW.id, 'Sunday', '09:00:00', False);
+              RETURN NEW;
+            END;
+            $$;
+            CREATE TRIGGER create_schedules 
+              AFTER INSERT ON users
+              FOR EACH ROW
+                EXECUTE PROCEDURE create_schedules_function();
+            UPDATE db_version SET version = %s;
+            """
+            cursor.execute(sql, (2,))
             connection.commit()
         if db_version >= DB_VERSION:
             break
