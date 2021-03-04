@@ -30,8 +30,8 @@ if __name__ == '__main__':
         Database.reset_standup(google_id=user.google_id)
         next_question = Database.get_current_question(google_id=user.google_id)
         if next_question is None:
-            text = f"🤕 Sorry, I could not find a standup question. " \
-                   f"Add new questions with `/add_question QUESTION`."
+            text = "🤕 Sorry, I could not find a standup question. " \
+                   "Add new questions with `/add_question QUESTION`."
         else:
             text = f"*Hi {user.name}!*\nIt is standup time.\n\n" \
                    f"_{next_question.question}_"

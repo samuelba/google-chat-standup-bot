@@ -65,7 +65,7 @@ m1 = [
     ALTER TABLE "schedules" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
     CREATE UNIQUE INDEX ON "schedules" ("user_id", "day");
     """,
-    f"""
+    """
     INSERT INTO __schema_version VALUES(1);
     """
 ]
@@ -73,7 +73,7 @@ m1 = [
 m2 = [
     """
     CREATE OR REPLACE FUNCTION create_schedules_function()
-      RETURNS TRIGGER 
+      RETURNS TRIGGER
       LANGUAGE PLPGSQL AS
     $$
     BEGIN
@@ -88,7 +88,7 @@ m2 = [
       RETURN NEW;
     END;
     $$;
-    CREATE TRIGGER create_schedules 
+    CREATE TRIGGER create_schedules
       AFTER INSERT ON users
       FOR EACH ROW
         EXECUTE PROCEDURE create_schedules_function();
@@ -118,7 +118,7 @@ m3 = [
     """,
     """
     CREATE OR REPLACE FUNCTION create_default_questions_function()
-      RETURNS TRIGGER 
+      RETURNS TRIGGER
       LANGUAGE PLPGSQL AS
     $$
     BEGIN
@@ -130,7 +130,7 @@ m3 = [
       RETURN NEW;
     END;
     $$;
-    CREATE TRIGGER create_default_questions 
+    CREATE TRIGGER create_default_questions
       AFTER INSERT ON teams
       FOR EACH ROW
         EXECUTE PROCEDURE create_default_questions_function();
