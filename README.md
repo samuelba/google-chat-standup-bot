@@ -1,5 +1,7 @@
 # Google Chat Standup Bot
 
+[![Unit Testing](https://github.com/samuelba/google-chat-standup-bot/actions/workflows/unit-testing.yml/badge.svg)](https://github.com/samuelba/google-chat-standup-bot/actions/workflows/unit-testing.yml)
+
 This is a Google Chat bot for Google Workspace to ask the users the ~~three~~ defined standup questions. 
 After the questions have been answered, the bot will publish the answers as a card to the group chat of the team. 
 The standup questions can be either triggered automatically by a user configurable schedule, or manually by the user.
