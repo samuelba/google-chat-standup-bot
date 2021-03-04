@@ -146,3 +146,45 @@ def test_leave_team(database_fixture):
     assert users[0].team_name is None
     assert users[1].team_name is None
     assert users[2].team_name is None
+
+
+def test_join_room_to_team(database_fixture):
+    # Add teams.
+    _add_teams()
+
+    # Try in-existent team.
+    assert not Database.join_room_to_team(team_name='xxx', space='abc')
+
+    # Join room to team.
+    assert Database.join_room_to_team(team_name='Backend', space='abc')
+    assert not Database.join_room_to_team(team_name='Backend', space='xyz')
+    teams = Database.get_teams()
+    assert teams[0].name == 'Backend' and teams[0].space == 'abc'
+    assert teams[1].name == 'Frontend' and teams[1].space is None
+
+    # Join room to other team.
+    assert Database.join_room_to_team(team_name='Frontend', space='abc')
+    teams = Database.get_teams()
+    assert teams[0].name == 'Backend' and teams[0].space is None
+    assert teams[1].name == 'Frontend' and teams[1].space == 'abc'
+
+
+def test_leave_team_with_room(database_fixture):
+    # Add teams.
+    _add_teams()
+
+    # Try in-existent team.
+    assert not Database.leave_team_with_room(space='xxx')
+
+    # Join room to team.
+    assert Database.join_room_to_team(team_name='Backend', space='abc')
+    assert Database.join_room_to_team(team_name='Frontend', space='def')
+    teams = Database.get_teams()
+    assert teams[0].name == 'Backend' and teams[0].space == 'abc'
+    assert teams[1].name == 'Frontend' and teams[1].space == 'def'
+
+    # Leave team.
+    assert Database.leave_team_with_room(space='abc')
+    teams = Database.get_teams()
+    assert teams[0].name == 'Backend' and teams[0].space is None
+    assert teams[1].name == 'Frontend' and teams[1].space == 'def'
