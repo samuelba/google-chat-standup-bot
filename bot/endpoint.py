@@ -10,7 +10,6 @@ from google.oauth2 import id_token
 import bot.utils.Cards as Cards
 import bot.utils.Chat as Chat
 import bot.utils.Database as Database
-import bot.utils.Questions as Questions
 from bot.utils.Logger import setup_logger
 from bot.utils.Team import Team
 from bot.utils.User import User
@@ -42,7 +41,7 @@ def send_standup_card(card, user: User, team: Team):
     Database.set_message_id(google_id=user.google_id, message_id=message_id)
 
 
-def update_standup_card(card, user: User, team: Team, message_id: str):
+def update_standup_card(card, user: User, message_id: str):
     chat = Chat.get_chat_service()
     app.logger.info(f"message id: {message_id}")
     response = chat.spaces().messages().update(
@@ -141,7 +140,13 @@ def on_event():
                     text = "🤕 Sorry, but this command has no effect in a room."
                 else:
                     Database.reset_standup(google_id=user.google_id)
-                    text = Questions.get_standup_question(user.name, '0_na')
+                    next_question = Database.get_current_question(google_id=user.google_id)
+                    if next_question is None:
+                        text = f"🤕 Sorry, I could not find a standup question. " \
+                               f"Add new questions with `/add_question QUESTION`."
+                    else:
+                        text = f"*Hi {user.name}!*\nYou requested to do the standup.\n\n" \
+                               f"_{next_question.question}_"
             # /disable_schedule day
             if event['message']['slashCommand']['commandId'] == '7':
                 if is_room:
@@ -207,30 +212,65 @@ def on_event():
                     text = f"You left the team. Run `/join_team` to join another team."
             # /remove_team
             if event['message']['slashCommand']['commandId'] == '12':
-                team_name = ''
-                if 'argumentText' in event['message']:
-                    team_name = event['message']['argumentText'].strip(' "\'')
-                if team_name and Database.remove_team(team_name=team_name):
-                    text = f"I removed the team '{team_name}'."
+                teams = Database.get_teams()
+                return json.jsonify(Cards.get_team_remove_card(teams, False))
+            # /questions
+            if event['message']['slashCommand']['commandId'] == '13':
+                questions = Database.get_questions(google_id=user.google_id)
+                if questions:
+                    return json.jsonify(Cards.get_question_list_card(questions))
                 else:
-                    text = f"🤕 Sorry, I couldn't remove the team '{team_name}'. " \
-                           f"Make sure the team has no assigned room and no users."
+                    text = f"🤕 Sorry, I couldn't find any questions for you. " \
+                           f"Make sure you joined a team with `/join_team` and/or your team as questions. " \
+                           f"Use `/add_question QUESTION` to add a new question for your team."
+            # /add_question QUESTION
+            if event['message']['slashCommand']['commandId'] == '14':
+                question = ''
+                if 'argumentText' in event['message']:
+                    question = event['message']['argumentText'].strip(' "\'')
+                if question and Database.add_question(google_id=user.google_id, question=question):
+                    text = f"I successfully added the new question '{question}'."
+                else:
+                    text = f"🤕 Sorry, I couldn't add the new question '{question}'. " \
+                           f"Make sure you joined a team with `/join_team`."
+            # /remove_question
+            if event['message']['slashCommand']['commandId'] == '15':
+                questions = Database.get_questions(google_id=user.google_id)
+                return json.jsonify(Cards.get_question_remove_card(questions, False))
+            # /reorder_questions
+            if event['message']['slashCommand']['commandId'] == '16':
+                questions = Database.get_questions(google_id=user.google_id)
+                if questions:
+                    return json.jsonify(Cards.get_question_reorder_card(questions, 1))
+                else:
+                    text = f"🤕 Sorry, I couldn't find any questions of your team."
 
         # Handle standup answers and generic requests.
         else:
             if is_room:
                 text = NO_ANSWER
             else:
-                question_type = Database.get_standup_question_type(google_id=user.google_id)
-                if question_type and question_type != '3_blocking':
-                    answer = event['message']['text']
-                    success, question_type = Database.add_standup_answer(google_id=user.google_id, answer=answer)
-                    text = Questions.get_standup_question(user.name, question_type)
-                    if question_type == '3_blocking':
-                        app.logger.info("Publish to the team webhook.")
-                        answers = Database.get_standup_answers(google_id=user.google_id)
-                        card = Cards.get_standup_card(request, user, answers, True)
-                        return json.jsonify({'cards': [card]})
+                previous_question = Database.get_previous_question(google_id=user.google_id)
+                app.logger.debug(f"Previous question: {previous_question.id_}, {previous_question.question}, "
+                                 f"{previous_question.order}")
+                if previous_question:
+                    current_question = Database.get_current_question(google_id=user.google_id,
+                                                                     previous_question=previous_question)
+                    app.logger.debug(f"Current question: {current_question.id_}, {current_question.question}, "
+                                     f"{current_question.order}")
+                    if current_question:
+                        answer = event['message']['text']
+                        Database.add_standup_answer(google_id=user.google_id, answer=answer,
+                                                    current_question=current_question)
+                        next_question = Database.get_current_question(google_id=user.google_id,
+                                                                      previous_question=current_question)
+                        app.logger.debug(f"Next question: {next_question}")
+                        if next_question is None:
+                            answers = Database.get_standup_answers(google_id=user.google_id)
+                            card = Cards.get_standup_card(user, answers, True)
+                            return json.jsonify({'cards': [card]})
+                        else:
+                            text = f"_{next_question.question}_"
                 else:
                     text = NO_ANSWER
     elif event['type'] == 'CARD_CLICKED':
@@ -247,6 +287,18 @@ def on_event():
                     text = f"You have joined the team '{team_name}'."
                 else:
                     text = f"🤕 Sorry, I couldn't add you to the team '{team_name}'"
+        # Remove team.
+        if event['action']['actionMethodName'] == 'remove_team':
+            team_name = event['action']['parameters'][0]['value']
+            if Database.remove_team(team_name=team_name):
+                text = f"I successfully removed the team '{team_name}'."
+            else:
+                text = f"🤕 Sorry, I couldn't remove the team '{team_name}'."
+            teams = Database.get_teams()
+            message = Cards.get_team_remove_card(teams, True)
+            message['text'] = text
+            return json.jsonify(message)
+        # Send the standup answers to the team room.
         if event['action']['actionMethodName'] == 'send_answers':
             if is_room:
                 text = f"🤕 Sorry, something went wrong."
@@ -254,13 +306,13 @@ def on_event():
                 app.logger.info("Publish to the team room.")
                 answers = Database.get_standup_answers(google_id=user.google_id)
                 message_id = Database.get_standup_answer_message_id(google_id=user.google_id)
-                card = Cards.get_standup_card(request, user, answers, False)
+                card = Cards.get_standup_card(user, answers, False)
                 team = Database.get_team_of_user(google_id=user.google_id)
                 app.logger.info(f"Message id: {message_id}")
                 if team:
                     if team.space:
                         if message_id:
-                            update_standup_card(card, user, team, message_id)
+                            update_standup_card(card, user, message_id)
                             text = f"Your standup answers have been updated in your team room."
                         else:
                             send_standup_card(card, user, team)
@@ -271,6 +323,32 @@ def on_event():
                                f"and run `/join_team` in your team room to join a team."
                 else:
                     text = f"🤕 Sorry, you did not yet join a team. Use `/join_team` to join a team."
+        # Remove question.
+        if event['action']['actionMethodName'] == 'remove_question':
+            question_id = int(event['action']['parameters'][0]['value'])
+            question = event['action']['parameters'][1]['value']
+            if Database.remove_question(question_id=question_id):
+                text = f"I removed successfully the question '{question}'."
+            else:
+                text = f"🤕 Sorry, I couldn't remove the question '{question}'"
+            questions = Database.get_questions(google_id=user.google_id)
+            message = Cards.get_question_remove_card(questions, True)
+            message['text'] = text
+            return json.jsonify(message)
+        # Reorder questions.
+        if event['action']['actionMethodName'] == 'reorder_questions':
+            question_id = int(event['action']['parameters'][0]['value'])
+            question = event['action']['parameters'][1]['value']
+            order_step = int(event['action']['parameters'][2]['value'])
+            team_id = int(event['action']['parameters'][3]['value'])
+            app.logger.info(f"Question id: {question_id}")
+            app.logger.info(f"Question: {question}")
+            app.logger.info(f"Order step: {order_step}")
+
+            Database.reorder_questions(team_id=team_id, question_id=question_id, order_step=order_step)
+            questions = Database.get_questions(google_id=user.google_id)
+            return json.jsonify(Cards.get_question_reorder_card(questions, order_step + 1))
+
     else:
         return
     return json.jsonify({'text': text})

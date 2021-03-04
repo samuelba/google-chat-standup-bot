@@ -1,7 +1,7 @@
 from datetime import date
-from typing import Dict, Sequence
+from typing import Sequence
 
-import bot.utils.Questions as Questions
+from bot.utils.Question import Question
 from bot.utils.Schedule import Schedule
 from bot.utils.Team import Team
 from bot.utils.User import User
@@ -10,7 +10,12 @@ from bot.utils.User import User
 def get_team_list_card(teams: Sequence[Team]):
     widgets = []
     if not teams:
-        teams.append(Team(name="No teams found.", space=''))
+        widgets.append({
+            "keyValue": {
+                "contentMultiline": "true",
+                "content": f"No teams found.",
+            }
+        })
     for team in teams:
         widgets.append({
             "keyValue": {
@@ -23,6 +28,53 @@ def get_team_list_card(teams: Sequence[Team]):
                 "header": {"title": "Teams"},
                 "sections": [{"widgets": widgets}]
             }]}
+
+
+def get_team_remove_card(teams: Sequence[Team], is_update: bool):
+    widgets = []
+    if not teams:
+        widgets.append({
+            "keyValue": {
+                "contentMultiline": "true",
+                "content": f"No teams found.",
+            }
+        })
+    for team in teams:
+        if team.space:
+            widgets.append({
+                "keyValue": {
+                    "contentMultiline": "true",
+                    "content": f"{team.name}",
+                    "bottomLabel": "Room is assigned."
+                }
+            })
+        else:
+            widgets.append({
+                "keyValue": {
+                    "contentMultiline": "true",
+                    "content": f"{team.name}",
+                    "bottomLabel": "No room is assigned.",
+                    "button": {
+                        "textButton": {
+                            "text": "REMOVE",
+                            "onClick": {
+                                "action": {
+                                    "actionMethodName": "remove_team",
+                                    "parameters": [{"key": "team_name", "value": team.name}]
+                                }
+                            }
+                        }
+                    }
+                }
+            })
+    result = \
+        {"cards": [{
+            "header": {"title": "Teams"},
+            "sections": [{"widgets": widgets}]
+        }]}
+    if is_update:
+        result['actionResponse'] = {"type": "UPDATE_MESSAGE"}
+    return result
 
 
 def get_team_selection_card(teams: Sequence[Team], is_room: bool, with_greeting: bool = False):
@@ -79,42 +131,26 @@ def get_team_selection_card(teams: Sequence[Team], is_room: bool, with_greeting:
             }]}
 
 
-def get_standup_card(request, user: User, answers: Dict, with_confirmation: bool):
+def get_standup_card(user: User, answers: Sequence, with_confirmation: bool):
     today = date.today()
     today_str = today.strftime("%b %d %Y")
-    icon_done_url = f"https://{request.host}/static/images/done.png"
-    icon_list_url = f"https://{request.host}/static/images/list.png"
-    icon_blocking_url = f"https://{request.host}/static/images/blocking.png"
+    sections = []
+    for answer in answers:
+        sections.append(
+            {"widgets": [
+                {"keyValue": {
+                    "topLabel": answer[0],
+                    "contentMultiline": "true",
+                    "content": f"{answer[1]}"
+                }}
+            ]}
+        )
+
     card = {
         "header": {"title": f"{user.name}",
                    "subtitle": f"{today_str}",
                    "imageUrl": f"{user.avatar_url}"},
-        "sections": [
-            {"widgets": [
-                {"keyValue": {
-                    "iconUrl": icon_done_url,
-                    "topLabel": Questions.QUESTION_RETROSPECT,
-                    "contentMultiline": "true",
-                    "content": f"{answers['1_retrospect']}"
-                }}
-            ]},
-            {"widgets": [
-                {"keyValue": {
-                    "iconUrl": icon_list_url,
-                    "topLabel": Questions.QUESTION_OUTLOOK,
-                    "contentMultiline": "true",
-                    "content": f"{answers['2_outlook']}"
-                }}
-            ]},
-            {"widgets": [
-                {"keyValue": {
-                    "iconUrl": icon_blocking_url,
-                    "topLabel": Questions.QUESTION_BLOCKING,
-                    "contentMultiline": "true",
-                    "content": f"{answers['3_blocking']}"
-                }}
-            ]}
-        ]
+        "sections": sections
     }
     if with_confirmation:
         confirmation = {
@@ -185,3 +221,115 @@ def get_user_list_card(users: Sequence[User]):
                 "header": {"title": "Users"},
                 "sections": [{"widgets": widgets}]
             }]}
+
+
+def get_question_list_card(questions: Sequence[Question]):
+    widgets = []
+    if not questions:
+        widgets.append({
+            "keyValue": {
+                "contentMultiline": "true",
+                "content": f"No questions found.",
+            }
+        })
+    for question in questions:
+        widgets.append({
+            "keyValue": {
+                "contentMultiline": "true",
+                "content": f"{question.question}",
+                "bottomLabel": f"Order: {question.order}"
+            }
+        })
+    return {"cards": [{
+                "header": {"title": "Questions"},
+                "sections": [{"widgets": widgets}]
+            }]}
+
+
+def get_question_remove_card(questions: Sequence[Question], is_update: bool):
+    widgets = []
+    if not questions:
+        widgets.append({
+            "keyValue": {
+                "contentMultiline": "true",
+                "content": f"No questions found.",
+            }
+        })
+    for question in questions:
+        widgets.append({
+            "keyValue": {
+                "contentMultiline": "true",
+                "content": f"{question.question}",
+                "bottomLabel": f"Order: {question.order}",
+                "button": {
+                    "textButton": {
+                        "text": "REMOVE",
+                        "onClick": {
+                            "action": {
+                                "actionMethodName": "remove_question",
+                                "parameters": [{"key": "question_id", "value": question.id_},
+                                               {"key": "question", "value": question.question}]
+                            }
+                        }
+                    }
+                }
+            }
+        })
+    result = \
+        {"cards": [{
+            "header": {"title": "Questions"},
+            "sections": [{"widgets": widgets}]
+        }]}
+    if is_update:
+        result['actionResponse'] = {"type": "UPDATE_MESSAGE"}
+    return result
+
+
+def get_question_reorder_card(questions: Sequence[Question], order_step: int):
+    widgets = []
+    if not questions:
+        widgets.append({
+            "keyValue": {
+                "contentMultiline": "true",
+                "content": f"No questions found.",
+            }
+        })
+    for question in questions:
+        if question.order >= order_step:
+            widgets.append({
+                "keyValue": {
+                    "contentMultiline": "true",
+                    "content": f"{question.question}",
+                    "bottomLabel": f"Order: {question.order}",
+                    "button": {
+                        "textButton": {
+                            "text": "SELECT",
+                            "onClick": {
+                                "action": {
+                                    "actionMethodName": "reorder_questions",
+                                    "parameters": [{"key": "question_id", "value": question.id_},
+                                                   {"key": "question", "value": question.question},
+                                                   {"key": "order_step", "value": order_step},
+                                                   {"key": "team_id", "value": question.team_id}]
+                                }
+                            }
+                        }
+                    }
+                }
+            })
+        else:
+            widgets.append({
+                "keyValue": {
+                    "contentMultiline": "true",
+                    "content": f"{question.question}",
+                    "bottomLabel": f"Order: {question.order}"
+                }
+            })
+    result = \
+        {"cards": [{
+            "header": {"title": "Questions", "subtitle": "Select the questions in the order you want them."},
+            "sections": [{"widgets": widgets}]
+        }]}
+    if order_step > 1:
+        result['actionResponse'] = {"type": "UPDATE_MESSAGE"}
+    return result
