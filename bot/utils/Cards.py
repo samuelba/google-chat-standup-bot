@@ -13,7 +13,7 @@ def get_team_list_card(teams: Sequence[Team]):
         widgets.append({
             "keyValue": {
                 "contentMultiline": "true",
-                "content": f"No teams found.",
+                "content": "No teams found.",
             }
         })
     for team in teams:
@@ -36,7 +36,7 @@ def get_team_remove_card(teams: Sequence[Team], is_update: bool):
         widgets.append({
             "keyValue": {
                 "contentMultiline": "true",
-                "content": f"No teams found.",
+                "content": "No teams found.",
             }
         })
     for team in teams:
@@ -183,7 +183,7 @@ def get_schedule_list_card(schedules: Sequence[Schedule]):
         widgets.append({
             "keyValue": {
                 "contentMultiline": "true",
-                "content": f"No schedules found.",
+                "content": "No schedules found.",
             }
         })
     for schedule in schedules:
@@ -205,7 +205,7 @@ def get_user_list_card(users: Sequence[User]):
         widgets.append({
             "keyValue": {
                 "contentMultiline": "true",
-                "content": f"No users found.",
+                "content": "No users found.",
             }
         })
     for user in users:
@@ -229,7 +229,7 @@ def get_question_list_card(questions: Sequence[Question]):
         widgets.append({
             "keyValue": {
                 "contentMultiline": "true",
-                "content": f"No questions found.",
+                "content": "No questions found.",
             }
         })
     for question in questions:
@@ -252,7 +252,7 @@ def get_question_remove_card(questions: Sequence[Question], is_update: bool):
         widgets.append({
             "keyValue": {
                 "contentMultiline": "true",
-                "content": f"No questions found.",
+                "content": "No questions found.",
             }
         })
     for question in questions:
@@ -291,7 +291,7 @@ def get_question_reorder_card(questions: Sequence[Question], order_step: int):
         widgets.append({
             "keyValue": {
                 "contentMultiline": "true",
-                "content": f"No questions found.",
+                "content": "No questions found.",
             }
         })
     for question in questions:

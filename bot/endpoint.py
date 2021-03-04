@@ -142,8 +142,8 @@ def on_event():
                     Database.reset_standup(google_id=user.google_id)
                     next_question = Database.get_current_question(google_id=user.google_id)
                     if next_question is None:
-                        text = f"🤕 Sorry, I could not find a standup question. " \
-                               f"Add new questions with `/add_question QUESTION`."
+                        text = "🤕 Sorry, I could not find a standup question. " \
+                               "Add new questions with `/add_question QUESTION`."
                     else:
                         text = f"*Hi {user.name}!*\nYou requested to do the standup.\n\n" \
                                f"_{next_question.question}_"
@@ -206,10 +206,10 @@ def on_event():
             if event['message']['slashCommand']['commandId'] == '11':
                 if is_room:
                     Database.leave_team_with_room(space=space)
-                    text = f"The room is no longer part of a team. Run `/join_team` to join the room to another team."
+                    text = "The room is no longer part of a team. Run `/join_team` to join the room to another team."
                 else:
                     Database.leave_team(google_id=user.google_id)
-                    text = f"You left the team. Run `/join_team` to join another team."
+                    text = "You left the team. Run `/join_team` to join another team."
             # /remove_team
             if event['message']['slashCommand']['commandId'] == '12':
                 teams = Database.get_teams()
@@ -220,9 +220,9 @@ def on_event():
                 if questions:
                     return json.jsonify(Cards.get_question_list_card(questions))
                 else:
-                    text = f"🤕 Sorry, I couldn't find any questions for you. " \
-                           f"Make sure you joined a team with `/join_team` and/or your team as questions. " \
-                           f"Use `/add_question QUESTION` to add a new question for your team."
+                    text = "🤕 Sorry, I couldn't find any questions for you. " \
+                           "Make sure you joined a team with `/join_team` and/or your team as questions. " \
+                           "Use `/add_question QUESTION` to add a new question for your team."
             # /add_question QUESTION
             if event['message']['slashCommand']['commandId'] == '14':
                 question = ''
@@ -243,7 +243,7 @@ def on_event():
                 if questions:
                     return json.jsonify(Cards.get_question_reorder_card(questions, 1))
                 else:
-                    text = f"🤕 Sorry, I couldn't find any questions of your team."
+                    text = "🤕 Sorry, I couldn't find any questions of your team."
 
         # Handle standup answers and generic requests.
         else:
@@ -301,7 +301,7 @@ def on_event():
         # Send the standup answers to the team room.
         if event['action']['actionMethodName'] == 'send_answers':
             if is_room:
-                text = f"🤕 Sorry, something went wrong."
+                text = "🤕 Sorry, something went wrong."
             else:
                 app.logger.info("Publish to the team room.")
                 answers = Database.get_standup_answers(google_id=user.google_id)
@@ -313,16 +313,16 @@ def on_event():
                     if team.space:
                         if message_id:
                             update_standup_card(card, user, message_id)
-                            text = f"Your standup answers have been updated in your team room."
+                            text = "Your standup answers have been updated in your team room."
                         else:
                             send_standup_card(card, user, team)
-                            text = f"Your standup answers have been published in your team room."
+                            text = "Your standup answers have been published in your team room."
                     else:
-                        text = f"🤕 Sorry, your team room does either not have the standup bot " \
-                               f"and/or did not yet join a team. Add the standup bot to your team room " \
-                               f"and run `/join_team` in your team room to join a team."
+                        text = "🤕 Sorry, your team room does either not have the standup bot " \
+                               "and/or did not yet join a team. Add the standup bot to your team room " \
+                               "and run `/join_team` in your team room to join a team."
                 else:
-                    text = f"🤕 Sorry, you did not yet join a team. Use `/join_team` to join a team."
+                    text = "🤕 Sorry, you did not yet join a team. Use `/join_team` to join a team."
         # Remove question.
         if event['action']['actionMethodName'] == 'remove_question':
             question_id = int(event['action']['parameters'][0]['value'])
