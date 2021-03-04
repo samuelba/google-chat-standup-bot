@@ -60,7 +60,6 @@ def add_user(connection, user: User) -> bool:
     logger.info(f"Add/update user: {user}")
     sql = "SELECT * " \
           "FROM users AS u " \
-          "INNER JOIN teams AS t ON t.id = u.team_id " \
           "WHERE u.google_id = %s"
     cursor.execute(sql, (user.google_id,))
     ret = cursor.fetchall()
