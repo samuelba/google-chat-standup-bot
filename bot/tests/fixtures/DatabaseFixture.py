@@ -28,6 +28,6 @@ def destroy_database(connection):
           "DROP TABLE questions CASCADE;" \
           "DROP TABLE users CASCADE;" \
           "DROP TABLE teams CASCADE;" \
-          "DROP TABLE db_version CASCADE;" \
+          "DROP TABLE __schema_version CASCADE;" \
           "DROP TYPE day_type CASCADE;"
     cursor.execute(sql)
