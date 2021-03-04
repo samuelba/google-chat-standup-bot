@@ -15,7 +15,7 @@ from bot.utils.User import User
 def get_password():
     try:
         return Path(os.environ.get('DB_PASSWORD_FILE', '')).read_text()
-    except Exception as e:
+    except Exception:
         return os.environ.get('DB_PASSWORD', '')
 
 
@@ -231,7 +231,7 @@ def get_team_of_user(connection, google_id: str) -> Optional[Team]:
 def get_users(connection, team_name) -> Sequence[User]:
     cursor = connection.cursor()
     team_join = "INNER" if team_name else "LEFT"
-    team_filter = f"AND t.name = %s" if team_name else ""
+    team_filter = "AND t.name = %s" if team_name else ""
     team_filter_value = (team_name,) if team_name else ()
     sql = "SELECT u.id, u.google_id, u.name, u.email, u.avatar_url, u.space, u.active, t.name " \
           "FROM users AS u " \
@@ -499,8 +499,8 @@ def update(connection):
             cursor.execute("SELECT version FROM __schema_version")
             if cursor.rowcount == 1:
                 version, = cursor.fetchone()
-        except psycopg2.DatabaseError as e:
-            logger.error(f"Version table does not exist.")
+        except psycopg2.DatabaseError:
+            logger.error("Version table does not exist.")
             connection.rollback()
         return version
 

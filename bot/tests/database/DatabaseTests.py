@@ -1,8 +1,6 @@
 import bot.utils.Database as Database
 from bot.utils.User import User
 
-from bot.tests.fixtures.DatabaseFixture import database_fixture
-
 
 def _add_users():
     john = User(0, 'abc', 'John Doe', 'john.doe@example.com', 'https://example.com/john-doe.png', 'space/abc', True,
@@ -188,3 +186,16 @@ def test_leave_team_with_room(database_fixture):
     teams = Database.get_teams()
     assert teams[0].name == 'Backend' and teams[0].space is None
     assert teams[1].name == 'Frontend' and teams[1].space == 'def'
+
+
+def test_get_team_of_user(database_fixture):
+    _add_teams()
+    _add_users()
+    assert Database.join_team(google_id='abc', team_name='Backend')
+
+    team = Database.get_team_of_user(google_id='xxx')
+    assert team is None
+    team = Database.get_team_of_user(google_id='def')
+    assert team is None
+    team = Database.get_team_of_user(google_id='abc')
+    assert team.name == 'Backend'
