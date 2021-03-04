@@ -43,3 +43,9 @@ TBD
 ## Traefik
 
 For the Traefik reverse proxy setup look at my [cloud-services](https://github.com/samuelba/cloud-services/tree/master/traefik) repository.
+
+## Database Schema
+
+See it on [dbdiagram.io](https://dbdiagram.io/d/60354600fcdcb6230b212562).
+
+![Database Schema](images/database_schema.png)
