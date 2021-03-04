@@ -82,21 +82,15 @@ def add_user(connection, user: User) -> bool:
 
 
 @with_connection(CONN_INFO)
-def disable_user(connection, user: User):
+def disable_user(connection, user: User) -> bool:
     cursor = connection.cursor()
-
-    logger.info(f"Disable user: {user}")
-    sql = "SELECT * " \
-          "FROM users AS u " \
-          "INNER JOIN teams AS t ON t.id = u.team_id " \
-          "WHERE u.google_id = %s"
-    cursor.execute(sql, (user.google_id,))
-    ret = cursor.fetchall()
-    if ret:
-        sql = "UPDATE users " \
-              "SET active = %s " \
-              "WHERE google_id = %s"
-        cursor.execute(sql, (False, user.google_id))
+    sql = "UPDATE users " \
+          "SET active = %s, team_id = NULL " \
+          "WHERE google_id = %s " \
+          "RETURNING id"
+    cursor.execute(sql, (False, user.google_id))
+    ret = cursor.fetchone()
+    return ret is not None
 
 
 @with_connection(CONN_INFO)

@@ -38,6 +38,23 @@ def test_add_team(database_fixture):
     assert not Database.add_team(team_name='Backend')
 
 
+def test_remove_team(database_fixture):
+    # Test empty case.
+    assert not Database.remove_team(team_name='')
+
+    # Add teams.
+    _add_teams()
+    # Add users.
+    _add_users()
+
+    # Join team.
+    assert Database.join_team(google_id='abc', team_name='Backend')
+
+    # Remove teams.
+    assert Database.remove_team(team_name='Frontend')
+    assert not Database.remove_team(team_name='Backend')
+
+
 def test_add_user(database_fixture):
     # Test empty case.
     assert len(Database.get_users(team_name='')) == 0
@@ -51,6 +68,40 @@ def test_add_user(database_fixture):
     assert users[0].name == 'Jane Doe'
     assert users[1].name == 'John Doe'
     assert users[2].name == 'Tim Doe'
+
+    # Add user again, this is to check the update function.
+    jane = User(0, 'def', 'Jane Unknown', 'jane.doe@example.com', 'https://example.com/jane-doe.png', 'space/def', True,
+                'Frontend')
+    Database.add_user(user=jane)
+    # Get all users.
+    users = Database.get_users(team_name='')
+    assert len(users) == 3
+    assert users[0].name == 'Jane Unknown'
+
+
+def test_disable_user(database_fixture):
+    # Test empty case.
+    assert not Database.disable_user(User(0, 'none', '', '', '', '', True, ''))
+
+    # Add teams.
+    _add_teams()
+    # Add users.
+    _add_users()
+    # Join team.
+    assert Database.join_team(google_id='abc', team_name='Backend')
+    # Get users.
+    users = Database.get_users(team_name='')
+    assert users[0].active and users[0].team_name is None
+    assert users[1].active and users[1].team_name == 'Backend'
+
+    # Disable users.
+    assert Database.disable_user(User(0, 'abc', '', '', '', '', True, ''))
+    assert Database.disable_user(User(0, 'def', '', '', '', '', True, ''))
+
+    # Get users.
+    users = Database.get_users(team_name='')
+    assert not users[0].active and users[0].team_name is None
+    assert not users[1].active and users[1].team_name is None
 
 
 def test_join_team(database_fixture):
@@ -74,3 +125,24 @@ def test_join_team(database_fixture):
     users = Database.get_users(team_name='')
     assert users[0].team_name == 'Frontend'
     assert users[1].team_name == 'Frontend'
+
+
+def test_leave_team(database_fixture):
+    # Add teams and users.
+    _add_teams()
+    _add_users()
+
+    # Join team.
+    assert Database.join_team(google_id='abc', team_name='Backend')
+    assert Database.join_team(google_id='def', team_name='Frontend')
+
+    # Leave team.
+    assert not Database.leave_team(google_id='xxx')
+    assert Database.leave_team(google_id='abc')
+    assert Database.leave_team(google_id='def')
+
+    # Get users and check team.
+    users = Database.get_users(team_name='')
+    assert users[0].team_name is None
+    assert users[1].team_name is None
+    assert users[2].team_name is None
