@@ -4,7 +4,6 @@ from datetime import datetime
 
 import bot.utils.Chat as Chat
 import bot.utils.Database as Database
-import bot.utils.Questions as Questions
 from bot.utils.Logger import logger, setup_logger
 
 
@@ -24,13 +23,21 @@ if __name__ == '__main__':
     chat = Chat.get_chat_service()
 
     # Send the standup message.
-    for name, google_id, space in users:
-        if not space:
+    for user in users:
+        if not user.space:
             continue
-        logger.info(f"Trigger for user: {name}, {google_id}, {space}")
-        Database.reset_standup(google_id=google_id)
+        logger.info(f"Trigger for user: {user.name}, {user.google_id}, {user.space}")
+        Database.reset_standup(google_id=user.google_id)
+        next_question = Database.get_current_question(google_id=user.google_id)
+        if next_question is None:
+            text = f"🤕 Sorry, I could not find a standup question. " \
+                   f"Add new questions with `/add_question QUESTION`."
+        else:
+            text = f"*Hi {user.name}!*\nIt is standup time.\n\n" \
+                   f"_{next_question.question}_"
+
         response = chat.spaces().messages().create(
-            parent=space,
-            body={'text': Questions.get_standup_question(name, '0_na')}
+            parent=user.space,
+            body={'text': text}
         ).execute()
         logger.debug(f"Response: {response}")

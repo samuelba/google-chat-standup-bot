@@ -25,9 +25,9 @@ def destroy_database(connection):
     cursor = connection.cursor()
     sql = "DROP TABLE schedules CASCADE;" \
           "DROP TABLE standups CASCADE;" \
+          "DROP TABLE questions CASCADE;" \
           "DROP TABLE users CASCADE;" \
           "DROP TABLE teams CASCADE;" \
           "DROP TABLE db_version CASCADE;" \
-          "DROP TYPE day_type CASCADE;" \
-          "DROP TYPE question_type CASCADE;"
+          "DROP TYPE day_type CASCADE;"
     cursor.execute(sql)

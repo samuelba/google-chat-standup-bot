@@ -1,8 +1,16 @@
 # Google Chat Standup Bot
 
-This is a Google Chat bot to ask the users the three standup questions. 
-After the questions have been answered, the bot will publish the answers to the group chat of the team. 
+This is a Google Chat bot for Google Workspace to ask the users the ~~three~~ defined standup questions. 
+After the questions have been answered, the bot will publish the answers as a card to the group chat of the team. 
 The standup questions can be either triggered automatically by a user configurable schedule, or manually by the user.
+
+**Features**
+
+* Supports different teams
+* Bot publishes the standup answers to the team room
+* Users can configure their own schedules, at which days and time they want to get a standup notification
+* The questions are configurable per team
+* The user can redo the standup questions, and the answers card will be updated in the team room
 
 ![Screenshots](images/screenshots.png)
 
@@ -21,6 +29,12 @@ The standup questions can be either triggered automatically by a user configurab
 | `/enable_schedule WEEKDAY` | Enable the schedule of the weekday. | 8 |
 | `/disable_schedule WEEKDAY` | Disable the schedule of the weekday. | 7 |
 | `/change_schedule_time WEEKDAY TIME` | Change the schedule time of the weekday. | 9 |
+| `/questions` | List the standup questions of your team. | 13 |
+| `/add_question QUESTION` | Add a new standup quesiton for your team. | 14 |
+| `/remove_question` | Remove a standup question from your team. | 15 |
+| `/reorder_questions` | Reorder the standup questions of your team. | 16 |
+
+When you set up the bot in your Google Workspace account, make sure to use the same ids for the slash commands as in the table above.
 
 ## Google Chat Setup
 
