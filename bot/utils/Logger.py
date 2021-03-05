@@ -4,6 +4,10 @@ logger = logging.getLogger("chatbot")
 
 
 def setup_logger(debug: bool, log_file: str):
+    # Disable the 'file_cache is unavailable when using oauth2client >= 4.0.0' warning.
+    # See https://github.com/googleapis/google-api-python-client/issues/299
+    logging.getLogger('googleapiclient.discovery_cache').setLevel(logging.ERROR)
+
     logger.setLevel(logging.DEBUG)
 
     # logFormatter = logging.Formatter("%(asctime)s [%(name)s][%(levelname)-5.5s]  %(message)s")

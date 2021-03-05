@@ -2,3 +2,4 @@
 credentials/credentials.json
 secrets/postgres-passwd
 sync.sh
+**/__pycache__/
