@@ -24,12 +24,12 @@ The standup questions can be either triggered automatically by a user configurab
 | `/users [TEAM]` | List the users of the bot, optional filtered by the team. | 5 |
 | `/teams` | List the available teams. | 3 |
 | `/add_team TEAM` | Add a new team. | 1 |
-| `/join_team TEAM` | Trigger to join another team. Will display an interactive card with teams to join. | 4 |
+| `/join_team` | Trigger to join another team. Will display an interactive card with teams to join. | 4 |
 | `/leave_team` | Leave the team. | 11 |
 | `/remove_team` | Remove a team. | 12 |
 | `/schedules` | List the schedules. | 10 |
-| `/enable_schedule WEEKDAY` | Enable the schedule of the weekday. | 8 |
-| `/disable_schedule WEEKDAY` | Disable the schedule of the weekday. | 7 |
+| `/enable_schedule` | Trigger to enable a schedule. Will display an interactive card with the schedules. | 8 |
+| `/disable_schedule` | Trigger to disable a schedule. Will display an interactive card with the schedules. | 7 |
 | `/change_schedule_time WEEKDAY TIME` | Change the schedule time of the weekday. | 9 |
 | `/questions` | List the standup questions of your team. | 13 |
 | `/add_question QUESTION` | Add a new standup quesiton for your team. | 14 |

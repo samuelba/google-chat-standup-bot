@@ -147,34 +147,14 @@ def on_event():
                     else:
                         text = f"*Hi {user.name}!*\nYou requested to do the standup.\n\n" \
                                f"_{next_question.question}_"
-            # /disable_schedule day
-            if event['message']['slashCommand']['commandId'] == '7':
+            # /enable_schedule or /disable_schedule
+            if event['message']['slashCommand']['commandId'] == '7' or \
+                    event['message']['slashCommand']['commandId'] == '8':
                 if is_room:
                     text = "🤕 Sorry, but this command has no effect in a room."
                 else:
-                    schedule_day = ''
-                    if 'argumentText' in event['message']:
-                        schedule_day = event['message']['argumentText'].strip(' "\'').capitalize()
-                    if schedule_day and schedule_day in Weekdays and \
-                            Storage.enable_schedule(google_id=user.google_id, day=schedule_day, enable=False):
-                        text = f"Your standup schedule for '{schedule_day}' is disabled."
-                    else:
-                        text = f"🤕 Sorry, I couldn't disable your standup schedule for '{schedule_day}'. " \
-                               f"Use e.g. `/disable_schedule monday`"
-            # /enable_schedule day
-            if event['message']['slashCommand']['commandId'] == '8':
-                if is_room:
-                    text = "🤕 Sorry, but this command has no effect in a room."
-                else:
-                    schedule_day = ''
-                    if 'argumentText' in event['message']:
-                        schedule_day = event['message']['argumentText'].strip(' "\'').capitalize()
-                    if schedule_day and schedule_day in Weekdays and \
-                            Storage.enable_schedule(google_id=user.google_id, day=schedule_day, enable=True):
-                        text = f"Your standup schedule for '{schedule_day}' is enabled."
-                    else:
-                        text = f"🤕 Sorry, I couldn't enable your standup schedule for '{schedule_day}'. " \
-                               f"Use e.g. `/enable_schedule monday`"
+                    schedules = Storage.get_schedules(google_id=user.google_id)
+                    return json.jsonify(Cards.get_schedule_enable_card(schedules, False))
             # /change_schedule_time day time
             if event['message']['slashCommand']['commandId'] == '9':
                 if is_room:
@@ -323,6 +303,18 @@ def on_event():
                                "and run `/join_team` in your team room to join a team."
                 else:
                     text = "🤕 Sorry, you did not yet join a team. Use `/join_team` to join a team."
+        # Enable/disable schedule.
+        if event['action']['actionMethodName'] == 'enable_schedule':
+            day = event['action']['parameters'][0]['value']
+            enable = event['action']['parameters'][1]['value'] == 'True'
+            if Storage.enable_schedule(google_id=user.google_id, day=day, enable=enable):
+                text = f"I {'enabled' if enable else 'disabled'} successfully the schedule for {day}."
+            else:
+                text = f"🤕 Sorry, I couldn't {'enable' if enable else 'disable'} the schedule for {day}."
+            schedules = Storage.get_schedules(google_id=user.google_id)
+            message = Cards.get_schedule_enable_card(schedules, True)
+            message['text'] = text
+            return json.jsonify(message)
         # Remove question.
         if event['action']['actionMethodName'] == 'remove_question':
             question_id = int(event['action']['parameters'][0]['value'])
