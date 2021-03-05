@@ -3,7 +3,7 @@
 from datetime import datetime
 
 import bot.utils.Chat as Chat
-import bot.utils.Database as Database
+import bot.utils.storage.Storage as Storage
 from bot.utils.Logger import logger, setup_logger
 
 
@@ -15,7 +15,7 @@ if __name__ == '__main__':
     time_str = now.strftime("%H:%M:%S")
     schedule_day = now.strftime("%A")
     # Get the users with an active schedule, which was not yet triggered.
-    users = Database.get_users_with_schedule(day=schedule_day, time=time_str)
+    users = Storage.get_users_with_schedule(day=schedule_day, time=time_str)
     if not users:
         exit(0)
 
@@ -27,8 +27,8 @@ if __name__ == '__main__':
         if not user.space:
             continue
         logger.info(f"Trigger for user: {user.name}, {user.google_id}, {user.space}")
-        Database.reset_standup(google_id=user.google_id)
-        next_question = Database.get_current_question(google_id=user.google_id)
+        Storage.reset_standup(google_id=user.google_id)
+        next_question = Storage.get_current_question(google_id=user.google_id)
         if next_question is None:
             text = "🤕 Sorry, I could not find a standup question. " \
                    "Add new questions with `/add_question QUESTION`."

@@ -1,6 +1,6 @@
 import pytest
 
-import bot.utils.Database as Database
+import bot.utils.storage.Storage as Storage
 from bot.utils.Logger import setup_logger
 
 
@@ -17,17 +17,17 @@ def database_fixture(request):
 
 
 def create_database():
-    Database.update()
+    Storage.update()
 
 
-@Database.with_connection(Database.CONN_INFO)
+@Storage.transact
 def destroy_database(connection):
-    cursor = connection.cursor()
-    sql = "DROP TABLE schedules CASCADE;" \
-          "DROP TABLE standups CASCADE;" \
-          "DROP TABLE questions CASCADE;" \
-          "DROP TABLE users CASCADE;" \
-          "DROP TABLE teams CASCADE;" \
-          "DROP TABLE __schema_version CASCADE;" \
-          "DROP TYPE day_type CASCADE;"
-    cursor.execute(sql)
+    with connection.cursor() as cursor:
+        sql = "DROP TABLE schedules CASCADE;" \
+              "DROP TABLE standups CASCADE;" \
+              "DROP TABLE questions CASCADE;" \
+              "DROP TABLE users CASCADE;" \
+              "DROP TABLE teams CASCADE;" \
+              "DROP TABLE __schema_version CASCADE;" \
+              "DROP TYPE day_type CASCADE;"
+        cursor.execute(sql)
