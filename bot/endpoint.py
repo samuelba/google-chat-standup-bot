@@ -190,7 +190,7 @@ def on_event():
                             schedule_time = arguments[1].strip(' "\'')
                     if schedule_time and schedule_day and schedule_day in Weekdays \
                             and Storage.update_schedule_time(google_id=user.google_id, day=schedule_day,
-                                                              time=schedule_time):
+                                                             time=schedule_time):
                         text = f"Your standup schedule time for '{schedule_day}' is now '{schedule_time}'."
                     else:
                         text = f"🤕 Sorry, I couldn't change your standup schedule time '{schedule_time}' " \
@@ -255,15 +255,15 @@ def on_event():
                                  f"{previous_question.order}")
                 if previous_question:
                     current_question = Storage.get_current_question(google_id=user.google_id,
-                                                                     previous_question=previous_question)
+                                                                    previous_question=previous_question)
                     app.logger.debug(f"Current question: {current_question.id_}, {current_question.question}, "
                                      f"{current_question.order}")
                     if current_question:
                         answer = event['message']['text']
                         Storage.add_standup_answer(google_id=user.google_id, answer=answer,
-                                                    current_question=current_question)
+                                                   current_question=current_question)
                         next_question = Storage.get_current_question(google_id=user.google_id,
-                                                                      previous_question=current_question)
+                                                                     previous_question=current_question)
                         app.logger.debug(f"Next question: {next_question}")
                         if next_question is None:
                             answers = Storage.get_standup_answers(google_id=user.google_id)
