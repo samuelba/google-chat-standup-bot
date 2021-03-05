@@ -199,6 +199,45 @@ def get_schedule_list_card(schedules: Sequence[Schedule]):
             }]}
 
 
+def get_schedule_enable_card(schedules: Sequence[Schedule], is_update: bool):
+    widgets = []
+    if not schedules:
+        widgets.append({
+            "keyValue": {
+                "contentMultiline": "true",
+                "content": "No schedules found.",
+            }
+        })
+    for schedule in schedules:
+        widgets.append({
+            "keyValue": {
+                "contentMultiline": "true",
+                "content": f"{schedule.day}, {schedule.time}",
+                "bottomLabel": f"{'enabled' if schedule.enabled else 'disabled'}",
+                "button": {
+                    "textButton": {
+                        "text": "ENABLE" if not schedule.enabled else "DISABLE",
+                        "onClick": {
+                            "action": {
+                                "actionMethodName": "enable_schedule",
+                                "parameters": [{"key": "day", "value": schedule.day},
+                                               {"key": "enable", "value": "True" if not schedule.enabled else "False"}]
+                            }
+                        }
+                    }
+                }
+            }
+        })
+    result = \
+        {"cards": [{
+            "header": {"title": "Schedules"},
+            "sections": [{"widgets": widgets}]
+        }]}
+    if is_update:
+        result['actionResponse'] = {"type": "UPDATE_MESSAGE"}
+    return result
+
+
 def get_user_list_card(users: Sequence[User]):
     widgets = []
     if not users:

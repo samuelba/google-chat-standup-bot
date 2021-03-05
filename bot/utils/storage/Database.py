@@ -408,12 +408,12 @@ def update_schedule_time(connection, google_id: str, day: str, time: str) -> boo
 
 def get_schedules(connection, google_id: str) -> Sequence[Schedule]:
     with connection.cursor() as cursor:
-        sql = "SELECT s.day, s.time, s.enabled " \
+        sql = "SELECT s.id, s.day, s.time, s.enabled " \
               "FROM schedules AS s " \
               "INNER JOIN users AS u ON u.id = s.user_id AND u.google_id = %s"
         cursor.execute(sql, (google_id,))
         ret = cursor.fetchall()
-        return [Schedule(day, time, enabled) for day, time, enabled in ret]
+        return [Schedule(id_, day, time, enabled) for id_, day, time, enabled in ret]
 
 
 def update(connection) -> bool:
