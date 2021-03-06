@@ -39,12 +39,14 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install flake8 pytest
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: Set up flake8 annotations
+        uses: rbialon/flake8-annotations@v1
       - name: Lint with flake8
         run: |
           # Stop the build if there are Python syntax errors or undefined names.
           flake8 . --count --max-line-length=120 --show-source --statistics
           # Exit-zero treats all errors as warnings.
-          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=120 --statistics
+          flake8 . --count --exit-zero --max-complexity=20 --max-line-length=120 --statistics
       - name: Test with pytest
         run: |
           pytest
