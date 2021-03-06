@@ -10,6 +10,27 @@ import bot.utils.storage.Storage as Storage
 from bot.utils.Logger import logger
 
 
+def handle_event(event, user: User, space: str, is_room: bool) -> Any:
+    # Join team.
+    if event['action']['actionMethodName'] == 'join_team':
+        return join_team(event, user, space, is_room)
+    # Remove team.
+    if event['action']['actionMethodName'] == 'remove_team':
+        return remove_team(event)
+    # Send the standup answers to the team room.
+    if event['action']['actionMethodName'] == 'send_answers':
+        return send_standup_answers_to_room(user, is_room)
+    # Enable/disable schedule.
+    if event['action']['actionMethodName'] == 'enable_schedule':
+        return enable_schedule(event, user)
+    # Remove question.
+    if event['action']['actionMethodName'] == 'remove_question':
+        return remove_question(event, user)
+    # Reorder questions.
+    if event['action']['actionMethodName'] == 'reorder_questions':
+        return reorder_questions(event, user)
+
+
 def join_team(event, user: User, space: str, is_room: bool) -> str:
     team_name = event['action']['parameters'][0]['value']
     if is_room:

@@ -67,83 +67,20 @@ def on_event():
 
     app.logger.info(f"The event: {event}")
     if event['type'] == 'ADDED_TO_SPACE':
-        return AddedToSpace.add(user, is_room)
+        return AddedToSpace.handle_event(user, is_room)
 
     elif event['type'] == 'REMOVED_FROM_SPACE':
-        return RemovedFromSpace.remove(user, space, is_room)
+        return RemovedFromSpace.handle_event(user, space, is_room)
 
     elif event['type'] == 'MESSAGE':
-        if 'slashCommand' in event['message']:
-            command = event['message']['slashCommand']['commandId']
-            app.logger.debug(f"Slash command {command}")
-            # /add_team team_name
-            if command == '1':
-                return Message.add_team(event)
-            # /teams
-            if command == '3':
-                return Message.get_teams()
-            # /join_team
-            if command == '4':
-                return Message.join_team(is_room)
-            # /users [team_name]
-            if command == '5':
-                return Message.get_users(event)
-            # /standup
-            if command == '6':
-                return Message.trigger_standup(user, is_room)
-            # /enable_schedule or /disable_schedule
-            if command == '7' or command == '8':
-                return Message.enable_schedule(user, is_room)
-            # /change_schedule_time day time
-            if command == '9':
-                return Message.change_schedule_time(event, user, is_room)
-            # /schedules
-            if command == '10':
-                return Message.get_schedules(user, is_room)
-            # /leave_team
-            if command == '11':
-                return Message.leave_team(user, space, is_room)
-            # /remove_team
-            if command == '12':
-                return Message.remove_team()
-            # /questions
-            if command == '13':
-                return Message.get_questions(user)
-            # /add_question QUESTION
-            if command == '14':
-                return Message.add_question(event, user)
-            # /remove_question
-            if command == '15':
-                return Message.remove_question(user)
-            # /reorder_questions
-            if command == '16':
-                return Message.reorder_questions(user)
+        return Message.handle_event(event, user, space, is_room)
 
-        # Handle standup answers and generic requests.
-        else:
-            return Message.generic_input(event, user, is_room)
     elif event['type'] == 'CARD_CLICKED':
-        # Join team.
-        if event['action']['actionMethodName'] == 'join_team':
-            return CardClicked.join_team(event, user, space, is_room)
-        # Remove team.
-        if event['action']['actionMethodName'] == 'remove_team':
-            return CardClicked.remove_team(event)
-        # Send the standup answers to the team room.
-        if event['action']['actionMethodName'] == 'send_answers':
-            return CardClicked.send_standup_answers_to_room(user, is_room)
-        # Enable/disable schedule.
-        if event['action']['actionMethodName'] == 'enable_schedule':
-            return CardClicked.enable_schedule(event, user)
-        # Remove question.
-        if event['action']['actionMethodName'] == 'remove_question':
-            return CardClicked.remove_question(event, user)
-        # Reorder questions.
-        if event['action']['actionMethodName'] == 'reorder_questions':
-            return CardClicked.reorder_questions(event, user)
+        return CardClicked.handle_event(event, user, space, is_room)
 
     else:
         text = "Sorry, I don't know what to say."
+
     return json.jsonify({'text': text})
 
 

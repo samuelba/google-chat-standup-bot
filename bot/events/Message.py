@@ -10,6 +10,57 @@ from bot.utils.Weekdays import Weekdays
 NO_ANSWER = "🤔 Sorry, I don't have an answer for that."
 
 
+def handle_event(event, user: User, space: str, is_room: bool) -> Any:
+    if 'slashCommand' in event['message']:
+        command = event['message']['slashCommand']['commandId']
+        logger.debug(f"Slash command {command}")
+        # /add_team team_name
+        if command == '1':
+            return add_team(event)
+        # /teams
+        if command == '3':
+            return get_teams()
+        # /join_team
+        if command == '4':
+            return join_team(is_room)
+        # /users [team_name]
+        if command == '5':
+            return get_users(event)
+        # /standup
+        if command == '6':
+            return trigger_standup(user, is_room)
+        # /enable_schedule or /disable_schedule
+        if command == '7' or command == '8':
+            return enable_schedule(user, is_room)
+        # /change_schedule_time day time
+        if command == '9':
+            return change_schedule_time(event, user, is_room)
+        # /schedules
+        if command == '10':
+            return get_schedules(user, is_room)
+        # /leave_team
+        if command == '11':
+            return leave_team(user, space, is_room)
+        # /remove_team
+        if command == '12':
+            return remove_team()
+        # /questions
+        if command == '13':
+            return get_questions(user)
+        # /add_question QUESTION
+        if command == '14':
+            return add_question(event, user)
+        # /remove_question
+        if command == '15':
+            return remove_question(user)
+        # /reorder_questions
+        if command == '16':
+            return reorder_questions(user)
+    # Handle standup answers and generic requests.
+    else:
+        return generic_input(event, user, is_room)
+
+
 def add_team(event) -> Any:
     team_name = ''
     if 'argumentText' in event['message']:

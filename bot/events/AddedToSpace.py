@@ -6,7 +6,7 @@ import bot.utils.User as User
 import bot.utils.storage.Storage as Storage
 
 
-def add(user: User, is_room: bool) -> Any:
+def handle_event(user: User, is_room: bool) -> Any:
     if not is_room:
         Storage.add_user(user=user)
     teams = Storage.get_teams()
