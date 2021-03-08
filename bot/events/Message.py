@@ -203,14 +203,14 @@ def generic_input(event, user: User, is_room) -> Any:
         text = NO_ANSWER
     else:
         previous_question = Storage.get_previous_question(google_id=user.google_id)
-        logger.debug(f"Previous question: {previous_question.id_}, {previous_question.question}, "
-                     f"{previous_question.order}")
         if previous_question:
+            logger.debug(f"Previous question: {previous_question.id_}, {previous_question.question}, "
+                         f"{previous_question.order}")
             current_question = Storage.get_current_question(google_id=user.google_id,
                                                             previous_question=previous_question)
-            logger.debug(f"Current question: {current_question.id_}, {current_question.question}, "
-                         f"{current_question.order}")
             if current_question:
+                logger.debug(f"Current question: {current_question.id_}, {current_question.question}, "
+                             f"{current_question.order}")
                 answer = event['message']['text']
                 Storage.add_standup_answer(google_id=user.google_id, answer=answer,
                                            current_question=current_question)
