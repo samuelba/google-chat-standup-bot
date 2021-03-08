@@ -198,10 +198,8 @@ def reorder_questions(user) -> Any:
 
 
 def generic_input(event, user: User, is_room) -> Any:
-    text = ''
-    if is_room:
-        text = NO_ANSWER
-    else:
+    text = NO_ANSWER
+    if not is_room:
         previous_question = Storage.get_previous_question(google_id=user.google_id)
         if previous_question:
             logger.debug(f"Previous question: {previous_question.id_}, {previous_question.question}, "
@@ -223,6 +221,4 @@ def generic_input(event, user: User, is_room) -> Any:
                     return json.jsonify({'cards': [card]})
                 else:
                     text = f"_{next_question.question}_"
-        else:
-            text = NO_ANSWER
     return json.jsonify({'text': text})
