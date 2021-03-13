@@ -6,7 +6,7 @@ db_port=55123
 
 echo -e "Start PostgreSQL container"
 docker run -d --rm \
-  --name ${google-standup-bot-postgres} \
+  --name ${db_container_name} \
   -e POSTGRES_PASSWORD=postgres \
   -p ${db_port}:5432 \
   postgres:13
